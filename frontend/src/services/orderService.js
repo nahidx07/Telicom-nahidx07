@@ -29,8 +29,8 @@ export const placeOrder = async (userId, phone, packageInfo) => {
 };
 
 const sendTelegramToAdmin = async (text) => {
-    const botToken = "YOUR_BOT_TOKEN";
-    const chatId = "YOUR_ADMIN_CHAT_ID";
+    const botToken = "8497561673:AAGBUqSbDfN4HsYI5jbs-SAeC1kWo6i6Qkc";
+    const chatId = "5024973191";
     await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
