@@ -1,51 +1,40 @@
 import React, { useState } from 'react';
 import { auth } from '../firebase';
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Login = () => {
-    const [phone, setPhone] = useState('+880');
-    const [otp, setOtp] = useState('');
-    const [step, setStep] = useState('phone'); // phone or otp
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
-    const setupRecaptcha = () => {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {});
-    };
-
-    const sendOtp = () => {
-        setupRecaptcha();
-        const appVerifier = window.recaptchaVerifier;
-        signInWithPhoneNumber(auth, phone, appVerifier)
-            .then((confirmationResult) => {
-                window.confirmationResult = confirmationResult;
-                setStep('otp');
-            }).catch(err => alert(err.message));
-    };
-
-    const verifyOtp = () => {
-        window.confirmationResult.confirm(otp).then((result) => {
-            window.location.href = "/";
-        }).catch(err => alert("Wrong OTP"));
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            navigate('/');
+        } catch (error) {
+            alert("ইমেইল বা পাসওয়ার্ড ভুল!");
+        }
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-gray-100">
-            <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl">
-                <h2 className="text-2xl font-bold mb-6 text-center">Login to SIM Service</h2>
-                
-                {step === 'phone' ? (
-                    <>
-                        <input className="w-full p-3 border rounded-lg mb-4" 
-                               value={phone} onChange={(e) => setPhone(e.target.value)} />
-                        <div id="recaptcha-container"></div>
-                        <button onClick={sendOtp} className="w-full bg-blue-600 text-white p-3 rounded-lg font-bold">Send OTP</button>
-                    </>
-                ) : (
-                    <>
-                        <input className="w-full p-3 border rounded-lg mb-4" placeholder="Enter OTP"
-                               value={otp} onChange={(e) => setOtp(e.target.value)} />
-                        <button onClick={verifyOtp} className="w-full bg-green-600 text-white p-3 rounded-lg font-bold">Verify OTP</button>
-                    </>
-                )}
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
+            <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
+                <h2 className="text-3xl font-black text-indigo-600 mb-2">ফিরে আসায় স্বাগতম</h2>
+                <p className="text-gray-400 mb-8 text-sm">লগইন করে আপনার একাউন্টে প্রবেশ করুন</p>
+                <form onSubmit={handleLogin} className="space-y-4">
+                    <input type="email" placeholder="আপনার ইমেইল" className="w-full p-4 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-indigo-500" 
+                    onChange={(e) => setEmail(e.target.value)} required />
+                    
+                    <input type="password" placeholder="পাসওয়ার্ড" className="w-full p-4 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-indigo-500" 
+                    onChange={(e) => setPassword(e.target.value)} required />
+                    
+                    <button className="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl shadow-lg hover:bg-indigo-700 transition">লগইন করুন</button>
+                </form>
+                <p className="mt-6 text-center text-sm text-gray-500">
+                    একাউন্ট নেই? <Link to="/register" className="text-indigo-600 font-bold">নতুন একাউন্ট খুলুন</Link>
+                </p>
             </div>
         </div>
     );
